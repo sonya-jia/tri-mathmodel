@@ -1,0 +1,26 @@
+---
+title: "Chance in Games"
+author: "Sonya Eason and Sarah Ouda"
+format: pdf
+editor: source
+---
+
+To determine how skill and chance play a role in team performance, and also predict who would win 2024 March Madness, we decided to take the following approach:
+
+1)  identify a rational metric of team skill.
+
+2)  model team wins as a function of skill under informative priors.
+
+3)  determine to what extent wins could be explained by team skill and how much was left to chance. determine who would win March Madness 2024 under our model.
+
+**Identify a Rational Metric of Team Skill**
+
+$$
+skill = consistency \  * \ performance
+
+$$
+
+here
+
+
+
