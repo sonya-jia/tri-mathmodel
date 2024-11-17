@@ -210,7 +210,6 @@ $$
 
 $$
 consistency = 1-\frac{variance}{k}
-
 $$
 Consider k to be a constant that normalizes so the consistency is relative across teams. We chose our normalizing constant to be the max variance a team had in performance metric. 
 
@@ -256,9 +255,6 @@ win_fraction
 ```{r}
 point_differential <- mod_df %>%
   mutate(points_difference = Tm - Opp)
-
-
-point_differential
 ```
 
 
@@ -282,15 +278,18 @@ bbcombined |>
 
 ## Metropolis-Hastings Algorithm
 
-We believe the probability of winning a game to be a function of skill, but the question is how much is skill explanatory of wins. We must start by building a model that quantifies skill in game wins and seeing what variability can not be explained by skill differential. For those other factors not accounted for are chance-based factors.
-
+We believe the probability of winning a game to be a function of skill. This is how we will predict who wins 2024. The other question we will answer is how much is skill explanatory of wins. We must start by building a model that quantifies skill in game wins and seeing what variability can not be explained by skill differential. For those other factors not accounted for are chance-based factors.
 
 Since teams have different skill levels. It is also clear that the probability a team wins a game varies as a function of this skill level.
 
-Consider the binary variable of a team winning a game. 
+Consider the binary variable of a team winning a game. In this case, the probability a team wins a game, $\theta_t$ varies as a function of skill. 
 
 $$
-
+Y_i \sim binary(\theta_t)
+$$
+We define this as below. 
+$$
+\theta_t = \frac{1}{1+exp(\beta_0 + \beta_1 * x_i)}
 $$
 
 $x_i$ the skill metric for team i.
@@ -303,38 +302,48 @@ $$
 p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) =
 \prod_{i=1}^n \ (\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i)})^{y_i} * (1-\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i))})^{1-y_i}
 $$
-
-
-
-$$
-p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) =
- \ (\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)})^{\sum_{i=1}^n y_i} * (1-\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)})^{n-\sum_{i=1}^n y_i}
-$$
+We will define things on a log scale to avoid issues in numerical computation. 
 
 $$
-p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) =
- \ (\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)})^{n\bar{y}} * (1-\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)})^{n-n\bar{y}}
+log (p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1)) = {\sum_{i=1}^n \ [\ y_i*log(\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i)}) +\\
+(1-y_i)*log(1-\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i))})]}
 $$
 
 
-$$
-log(p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1)) =  {n\bar{y}} * log(\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)}) +({n-n\bar{y}})* log((1-\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)}))
-$$
+```{r}
 
-$$
-p(\beta_1\ |\ y_1, ...,y_n, \ x_1, ..., x_n,  \beta_0)  \propto \ p(y_1, ..., y_n, \ x_1, ..., x_n,  \beta_0, \beta_1)  = p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1)
-$$
+```
 
 
-$$
 
-p(y_1, ..., y_n, \ x_1, ..., x_n,  \beta_0, \beta_1)  = p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) * p(x_1, ..., x_n,  \beta_0, \beta_1)
+In order to build a distribution for $p(\beta_0, \beta_1 | \vec{y}, \vec{x})$, which is how we will land on the coefficients for our model, we need to set priors on the coefficients. 
 
-$$
-
+Since, we don't know much about skill's effect on performance, we will use diffuse priors. In this case, normal distributions with variance 1000. 
 
 $$
- p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) * p(x_1, ..., x_n,  \beta_0, \beta_1) \propto p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) * p( \beta_1)
+p(\beta_0, \beta_1) = dnorm(\beta_0, 0, sqrt(1000))* dnorm(\beta_1, 0, sqrt(1000))
+$$
+$$
+log(p(\beta_0, \beta_1)) = log(dnorm(\beta_0, 0, sqrt(1000))) + log(dnorm(\beta_1, 0, sqrt(1000)))
+$$
+
+We will chose a symmetric target distribution for sampling. If we choose a target that is irreducible, aperiodic, and recurrent, Ergodic theorem promises that our Markov chain will yield a stationary target distribution which is in this case a posterior defined by $p(\beta_0, \beta_1 | \vec{y}, \vec{x})$. 
+
+To determine if we accept a proposed value, we will utilize the following acceptance rate. 
+
+
+$$
+\frac{p(\beta_0^*, \beta_1^s |\ y_1, ...,y_n, \ x_1, ..., x_n)}{p(\beta_0^s, \beta_1^s |\ y_1, ...,y_n, \ x_1, ..., x_n)}
+$$
+
+
+$$
+\frac{p(\beta_0^{s+1}, \beta_1^s |\ y_1, ...,y_n, \ x_1, ..., x_n)}{p(\beta_0^{s+1}, \beta_1^* |\ y_1, ...,y_n, \ x_1, ..., x_n)}
+$$
+Since we do not have posteriors yet, we will weaponize the fact that this ratio is equivalent to the likelihood times posterior ratio. 
+
+$$
+\frac{posterior(new \ state)}{posterior(old\ state)} = \frac{prior(new\ state) * likelihood(new\ state)}{prior(old\ state) * likelihood(old\ state)}
 $$
 
 
@@ -343,7 +352,7 @@ set.seed(4)
 
 logLikelihood = function(beta0, beta1) {
   l = 1 + exp(beta0 + (beta1 * x))
-  n*y_bar*log(1/l)+(n-n*y_bar)*log(1-1/l)
+sum(y*log(1/l)+(1-y)*log(1-1/l))
 }
 
 logPrior = function(beta0, beta1) {
@@ -359,61 +368,49 @@ logPosterior = function(beta0, beta1) {
 BETA0 = NULL
 BETA1 = NULL
 
-##do I want to utilize sigma
-SIGMA2 = NULL
 
 accept1 = 0
 accept2 = 0
-accept3 = 0
 
-y_bar = mean(y)
-n = length(y)
+S = 10000
 
-S = 500
-
-beta0_s = 0.1
-beta1_s = 10
-sigma2_s = 1
+beta0_s = 0
+beta1_s = 0
 for (s in 1:S) {
   
   ## propose and update beta0
-  beta0_proposal = rnorm(1, mean = beta0_s, .5)
-   log.r = logPosterior(beta0_proposal, beta1_s, sigma2_s) - 
-     logPosterior(beta0_s, beta1_s, sigma2_s)
+  beta0_proposal = rnorm(1, mean = beta0_s, 1)
+   log.r = logPosterior(beta0_proposal, beta1_s) - 
+     logPosterior(beta0_s, beta1_s)
    
    if(log(runif(1)) < log.r)  {
     beta0_s = beta0_proposal
     accept1 = accept1 + 1 
+    
+    if (s%%100 == 0)
+    {
+         BETA0 = c(BETA0, beta0_s)
+    }
    }
-   
-   BETA0 = c(BETA0, beta0_s)
+
    
    ## propose and update beta1
     beta1_proposal = rnorm(1, mean = beta1_s, .5)
-   log.r = logPosterior(beta0_s, beta1_proposal, sigma2_s) - 
-     logPosterior(beta0_s, beta1_s, sigma2_s)
+   log.r = logPosterior(beta0_s, beta1_proposal) - 
+     logPosterior(beta0_s, beta1_s)
    
    if(log(runif(1)) < log.r)  {
     beta1_s = beta1_proposal
     accept2 = accept2 + 1 
+        if (s%%100 == 0)
+    {
+         BETA1 = c(BETA1, beta1_s)
+    }
    }
    
    BETA1 = c(BETA1, beta1_s)
+
    
-   ## propose and update sigma2
-   ### note: sigma2 is positive only, we want to only propose positive values
-   sigma2_proposal = 1 / rgamma(1, shape = 1, sigma2_s)
-   log.r = logPosterior(beta0_s, beta1_s, sigma2_proposal) - 
-     logPosterior(beta0_s, beta1_s, sigma2_s) + 
-     dinvgamma(sigma2_proposal, 1, sigma2_s, log = TRUE) - 
-     dinvgamma(sigma2_s, 1, sigma2_proposal, log = TRUE) 
-   
-   if(log(runif(1)) < log.r)  {
-    sigma2_s = sigma2_proposal
-    accept3 = accept3 + 1 
-   }
-   
-   SIGMA2 = c(SIGMA2, sigma2_s)
    
 }
 ```
