@@ -24,98 +24,16 @@ here
 ```{r}
 
 library(readr)
+teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
+
 akron <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Akron(56).csv")
 ```
 
-```{r echo = FALSE}
 
-
-teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
-
-alabama <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Alabama(16).csv")
-arizona <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
-auburn <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Auburn(15).csv")
-baylor <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Baylor(9).csv")
-```
 
 Read in data
 
-```{r}
 
-## need to read in all the data, not finished
-
-boise <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Boise St (38).csv")
-byu <- read_csv("bbdata23-24/Basketball_dataset.xlsx - BYU(17).csv")
-clemson <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Clemson(22).csv")
-charleston <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Col. of Charleston(54).csv")
-colgate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Colgate(58).csv")
-colorado <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Colorado (39).csv")
-coloradastate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Colorado St (44).csv")
-
-
-creighton <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Creighton(10).csv")
-dayton <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Dayton(28).csv")
-drake <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Drake (40).csv")
-duke <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Duke(13).csv")
-duquesne <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Duquesne(46).csv")
-flaAtlantic <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Fla Atlantic (31).csv")
-florida <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Florida(25).csv")
-gonzaga <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Gonzaga(21).csv")
-grambling <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Grambling(66).csv")
-grandcanyon <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Grand Canyon(47).csv")
-
-houston <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Houston(2).csv")
-howard <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Howard(67).csv")
-illinois <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Illinois(12).csv")
-iowastate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - IowaSt(8).csv")
-jamesmadison <- read_csv("bbdata23-24/Basketball_dataset.xlsx - James Madison(48).csv")
-kansas <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Kansas(14).csv")
-kentucky <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Kentucky(11).csv")
-
-longbeach <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Long Beach St(59).csv")
-longwood <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Longwood (63).csv")
-marquette <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Marquette(7).csv")
-mcneese <- read_csv("bbdata23-24/Basketball_dataset.xlsx - McNeese(49).csv")
-michstate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Michigan St. (33).csv")
-missstate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Mississippi St. (32).csv")
-montana <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Montana State(65).csv")
-moreheadstate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Morehead State(57).csv")
-ncstate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - NCState(45).csv")
-nebraska <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Nebraska(29).csv")
-nevada <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Nevada (37).csv")
-newmexico <- read_csv("bbdata23-24/Basketball_dataset.xlsx - New Mexico (42).csv")
-northwestern <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Northwestern (36).csv")
-oakland <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Oakland(55).csv")
-oregan <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Oregan (43).csv")
-purdue <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Purdue(3).csv")
-stmary <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Saint Mary's(CA)(20).csv")
-stpeter <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Saint Peter's(62).csv")
-samford <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Samford(53).csv")
-
-
-
-
-sandiego <- read_csv("bbdata23-24/Basketball_dataset.xlsx - San Diego State(18).csv")
-southcarolina <- read_csv("bbdata23-24/Basketball_dataset.xlsx - South Carolina (24).csv")
-southdakota <- read_csv("bbdata23-24/Basketball_dataset.xlsx - South Dakota St(61).csv")
-stetson <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Stetson(64).csv")
-tcu <- read_csv("bbdata23-24/Basketball_dataset.xlsx - TCU (35).csv")
-tennessee <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Tennessee(5).csv")
-txam <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Texas A&M (34).csv")
-txtech <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Texas Tech(23).csv")
-tx <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Texas(27).csv")
-uab <- read_csv("bbdata23-24/Basketball_dataset.xlsx - UAB(50).csv")
-uconn <- read_csv("bbdata23-24/Basketball_dataset.xlsx - UConn(1).csv")
-unc <- read_csv("bbdata23-24/Basketball_dataset.xlsx - UNC(4).csv")
-utahst <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Utah St (30).csv")
-vermont <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Vermont(51).csv")
-virginia <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Virginia (41).csv")
-wagner <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Wagner(68).csv")
-washingtonst <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Washington St (26).csv")
-westernky <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Western Ky(60).csv")
-wisconsin <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Wisconsin(19).csv")
-yale <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Yale(52).csv")
-```
 ##combining data
 
 ```{r}
