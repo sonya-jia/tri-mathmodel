@@ -50,6 +50,13 @@ csv_files <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TR
 # Read all CSV files into a list of data frames
 dataframes <- lapply(csv_files,function(file) {
   df <- read.csv(file)  # Read the CSV file
+  
+   # Rename the column "X" to "W.L" if it exists
+  if ("X" %in% colnames(df)) {
+    colnames(df)[colnames(df) == "X"] <- "W.L"
+  }
+  
+  
   df$source_file <- basename(file)  # Add the file name as a column
   return(df)
 })
@@ -71,6 +78,7 @@ combined_2023 <- do.call(rbind, dataframes)
 
 # View the combined data frame
 head(combined_2023)
+dim(combined_2023)
 ```
 ```{r}
 # Define the folder path where your CSV files are stored
@@ -103,6 +111,8 @@ combined_2021 <- do.call(rbind, dataframes)
 
 # View the combined data frame
 head(combined_2021)
+dim(combined_2021)
+
 ```
 
 ```{r}
@@ -136,11 +146,44 @@ combined_2022 <- do.call(rbind, dataframes)
 
 # View the combined data frame
 head(combined_2022)
+dim(combined_2022)
 ```
 Df names:
 2021-2022: combined_2021
 2022-2023: combined_2022
 2023-2024: combined_2023
+```{r}
+# Define the columns to retain
+target_columns <- c("G", "Date", "Opponent", "W.L", "Tm", "Opp", "source_file")
+
+# Function to filter and align columns
+filter_columns <- function(df, target_columns) {
+  # Retain only the target columns present in the data frame
+  df <- df[, intersect(colnames(df), target_columns), drop = FALSE]
+  
+  # Add missing columns with NA
+  missing_columns <- setdiff(target_columns, colnames(df))
+  df[missing_columns] <- NA
+  
+  # Reorder columns to match target_columns
+  df <- df[, target_columns, drop = FALSE]
+  return(df)
+}
+
+# Filter and align columns in each combined data frame
+combined_2023 <- filter_columns(combined_2023, target_columns)
+combined_2022 <- filter_columns(combined_2022, target_columns)
+combined_2021 <- filter_columns(combined_2021, target_columns)
+
+# Combine the filtered data frames into one
+bbcombined <- rbind(combined_2023, combined_2022, combined_2021)
+
+# View the final combined data frame
+head(bbcombined)
+dim(bbcombined)
+
+```
+Combined Name: bbcombined
 
 
 
