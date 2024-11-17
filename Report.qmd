@@ -256,39 +256,75 @@ $$
 skill = (1-\frac{var(point\ differential)}{max(var(point\  differential))})* mean(point \ differential)
 $$
 
-
-
 ```{r}
-combined_2023 <- combined_2023 |>
-  select(Date, X, Tm, Opp, source_file )
+library(dplyr)
+
+# Convert the date column to Date format and extract the month abbreviation
+mod_df <- bbcombined %>%
+  mutate(
+    date = as.Date(Date, format = "%a %b %d %Y"),  # Convert to Date format
+    month_abbr = format(date, "%b"),  # Extract month abbreviation (e.g., "Nov")
+    period = case_when(
+      month_abbr %in% c("Aug", "Sep", "Oct", "Nov", "Dec") ~ "first",  # August to November
+      month_abbr %in% c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul") ~ "second",  # January to July
+      TRUE ~ NA_character_  # Handle any cases that might not fit
+    )
+  )
+
 ```
 
 ```{r}
-combined_2023 |>
-  group_by(source_file, Date) |>
-  count(X)
+win_fraction <- mod_df %>%
+  group_by(source_file) %>%
+  summarise(
+    total_games = n(),  # Count total games
+    total_wins = sum(W.L == "W"),  # Count wins
+    win_fraction = total_wins / total_games  # Calculate fraction of wins
+  )
+```
+```{r}
+win_fraction
+```
+
+```{r}
+point_differential <- mod_df %>%
+  mutate(points_difference = Tm - Opp)
+
+
+point_differential
 ```
 
 
 
 ```{r}
-# need to calculcate this for all 
-
-point_diff_akron <- akron$Tm - akron$Opp
-point_diff_alabama <- alabama$Tm - alabama$Opp
-
-
-POINTDIFF = NULL
-POINTDIFF = c(POINTDIFF, point_diff_akron)
-
-POINTDIFF = c(POINTDIFF, point_diff_alabama)
+mod_df |>
+  group_by(source_file, W.L) |>
+  count(period)
 ```
+
+
 
 ```{r}
-(1-var(point_diff_akron)/(var(point_diff_akron)+100))*(mean(point_diff_akron))
+bbcombined |>
+  group_by(source_file) |>
+  count(W.L)
 ```
+
+
+
 
 ## Metropolis-Hastings Algorithm
+
+We believe the probability of winning a game to be a function of skill, but the question is how much is skill explanatory of wins. We must start by building a model that quantifies skill in game wins and seeing what variability can not be explained by skill differential. For those other factors not accounted for are chance-based factors.
+
+
+Since teams have different skill levels. It is also clear that the probability a team wins a game varies as a function of this skill level.
+
+Consider the binary variable of a team winning a game. 
+
+$$
+
+$$
 
 $x_i$ the skill metric for team i.
 
@@ -335,7 +371,7 @@ $$
 $$
 
 
-```{r}
+```{r eval = FALSE}
 set.seed(4)
 
 logLikelihood = function(beta0, beta1) {
