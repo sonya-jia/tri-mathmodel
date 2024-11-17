@@ -223,17 +223,58 @@ $$
 skill = (1-\frac{var(point\ differential)}{max(var(point\  differential))})* mean(point \ differential)
 $$
 
-
-
 ```{r}
-combined_2023 <- combined_2023 |>
-  select(Date, X, Tm, Opp, source_file )
+library(dplyr)
+
+# Convert the date column to Date format and extract the month abbreviation
+mod_df <- bbcombined %>%
+  mutate(
+    date = as.Date(Date, format = "%a %b %d %Y"),  # Convert to Date format
+    month_abbr = format(date, "%b"),  # Extract month abbreviation (e.g., "Nov")
+    period = case_when(
+      month_abbr %in% c("Aug", "Sep", "Oct", "Nov", "Dec") ~ "first",  # August to November
+      month_abbr %in% c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul") ~ "second",  # January to July
+      TRUE ~ NA_character_  # Handle any cases that might not fit
+    )
+  )
+
 ```
 
 ```{r}
-combined_2023 |>
-  group_by(source_file, Date) |>
-  count(X)
+win_fraction <- mod_df %>%
+  group_by(source_file) %>%
+  summarise(
+    total_games = n(),  # Count total games
+    total_wins = sum(W.L == "W"),  # Count wins
+    win_fraction = total_wins / total_games  # Calculate fraction of wins
+  )
+```
+```{r}
+win_fraction
+```
+
+```{r}
+point_differential <- mod_df %>%
+  mutate(points_difference = Tm - Opp)
+
+
+point_differential
+```
+
+
+
+```{r}
+mod_df |>
+  group_by(source_file, W.L) |>
+  count(period)
+```
+
+
+
+```{r}
+bbcombined |>
+  group_by(source_file) |>
+  count(W.L)
 ```
 
 
