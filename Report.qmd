@@ -63,13 +63,80 @@ dataframes <- lapply(dataframes, function(df) {
 })
 
 # Combine all data frames into one
-combined_df <- do.call(rbind, dataframes)
+combined_2023 <- do.call(rbind, dataframes)
 
 # View the combined data frame
-head(combined_df)
+head(combined_2023)
+```
+```{r}
+# Define the folder path where your CSV files are stored
+folder_path <- "data21-22"
+
+# Get a list of all CSV files in the folder
+csv_files <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TRUE)
+
+# Read all CSV files into a list of data frames
+dataframes <- lapply(csv_files,function(file) {
+  df <- read.csv(file)  # Read the CSV file
+  df$source_file <- basename(file)  # Add the file name as a column
+  return(df)
+})
+
+
+# Find the union of all column names across data frames
+all_columns <- Reduce(union, lapply(dataframes, colnames))
+
+# Ensure all data frames have the same columns
+dataframes <- lapply(dataframes, function(df) {
+  missing_columns <- setdiff(all_columns, colnames(df))
+  df[missing_columns] <- NA  # Add missing columns with NA
+  df <- df[, all_columns]    # Reorder columns to match
+  return(df)
+})
+
+# Combine all data frames into one
+combined_2021 <- do.call(rbind, dataframes)
+
+# View the combined data frame
+head(combined_2021)
 ```
 
+```{r}
+# Define the folder path where your CSV files are stored
+folder_path <- "data22-23"
 
+# Get a list of all CSV files in the folder
+csv_files <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TRUE)
+
+# Read all CSV files into a list of data frames
+dataframes <- lapply(csv_files,function(file) {
+  df <- read.csv(file)  # Read the CSV file
+  df$source_file <- basename(file)  # Add the file name as a column
+  return(df)
+})
+
+
+# Find the union of all column names across data frames
+all_columns <- Reduce(union, lapply(dataframes, colnames))
+
+# Ensure all data frames have the same columns
+dataframes <- lapply(dataframes, function(df) {
+  missing_columns <- setdiff(all_columns, colnames(df))
+  df[missing_columns] <- NA  # Add missing columns with NA
+  df <- df[, all_columns]    # Reorder columns to match
+  return(df)
+})
+
+# Combine all data frames into one
+combined_2022 <- do.call(rbind, dataframes)
+
+# View the combined data frame
+head(combined_2022)
+```
+Df names:
+2021-2022: combined_2021
+2022-2023: combined_2022
+2023-2024: combined_2023
 
 ```{r}
 # need to calculcate this for all 
