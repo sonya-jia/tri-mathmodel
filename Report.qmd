@@ -5,13 +5,12 @@ format: pdf
 editor: source
 ---
 
-##Libraries
+## Libraries
 
 ```{r}
 library(dplyr)
 library(knitr)
 ```
-
 
 To determine how skill and chance play a role in team performance, and also predict who would win 2024 March Madness, we decided to take the following approach:
 
@@ -21,34 +20,20 @@ To determine how skill and chance play a role in team performance, and also pred
 
 3)  determine to what extent wins could be explained by team skill and how much was left to chance. determine who would win March Madness 2024 under our model.
 
-Data Used & Background Research: 
-In addition to using the provided data from the 2024 season for all teams in the March Madness Tournament, we gathered historical game log data for the 2022 and 2023 seasons as well (https://www.sports-reference.com/cbb/seasons/men/2022-school-stats.html). Our system for quanitifying skill was inspired by this article: https://www.siam.org/publications/siam-news/articles/feeling-lucky-the-relative-roles-of-skill-and-chance-in-sports/. 
-
-
-
+Data Used & Background Research: In addition to using the provided data from the 2024 season for all teams in the March Madness Tournament, we gathered historical game log data for the 2022 and 2023 seasons as well (https://www.sports-reference.com/cbb/seasons/men/2022-school-stats.html). Our system for quanitifying skill was inspired by this article: https://www.siam.org/publications/siam-news/articles/feeling-lucky-the-relative-roles-of-skill-and-chance-in-sports/.
 
 **Identify a Rational Metric of Team Skill**
-
-here
 
 ```{r}
 
 library(readr)
-<<<<<<< HEAD
-#teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
-=======
-teamsf <- read_csv("Basketball_dataset.xlsx - Teams.csv")
->>>>>>> f8b66aaf2822e54da5fa55af60f2652132fb084f
 
 #akron <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Akron(56).csv")
 ```
 
-
-
 Read in data
 
-
-##combining data
+## combining data
 
 ```{r}
 # Define the folder path where your CSV files are stored
@@ -96,7 +81,6 @@ head(combined_2023)
 dim(combined_2023)
 ```
 
-
 ```{r}
 # Define the folder path where your CSV files are stored
 folder_path <- "data21-22"
@@ -143,7 +127,6 @@ dim(combined_2021)
 
 ```
 
-
 ```{r}
 # Define the folder path where your CSV files are stored
 folder_path <- "data22-23"
@@ -186,13 +169,7 @@ combined_2022 <- do.call(rbind, dataframes)
 head(combined_2022)
 ```
 
-Df names:
-2021-2022: combined_2021
-2022-2023: combined_2022
-2023-2024: combined_2023
-
-
-
+Df names: 2021-2022: combined_2021 2022-2023: combined_2022 2023-2024: combined_2023
 
 ```{r}
 # Define the columns to retain
@@ -234,28 +211,21 @@ unique(bbcombined$Team)
 
 Combined Name: bbcombined
 
+## skill task
 
-
-
-
-##skill task
-
-To develop the skill metric, it was of utmost importance to determine whether a team performed well but also performed consistently. A good performance, could in theory appear to be based on skill, but it would be wrong to give skill points to a team if that appearingly skilled performance came out of a performance that was a high score based on luck. For this reason, we decided to utilize a skill metric that would give weight to consistently and performance. Consistency in this case can be considered to be a function of variance. 
-$$
+To develop the skill metric, it was of utmost importance to determine whether a team performed well but also performed consistently. A good performance, could in theory appear to be based on skill, but it would be wrong to give skill points to a team if that appearingly skilled performance came out of a performance that was a high score based on luck. For this reason, we decided to utilize a skill metric that would give weight to consistently and performance. Consistency in this case can be considered to be a function of variance. $$
 skill = consistency \ * performance
 $$
 
 $$
 consistency = 1-\frac{variance}{k}
-$$
-Consider k to be a constant that normalizes so the consistency is relative across teams. We chose our normalizing constant to be the max variance a team had in performance metric. 
+$$ Consider k to be a constant that normalizes so the consistency is relative across teams. We chose our normalizing constant to be the max variance a team had in performance metric.
 
-There were two main metrics with which skill could be calculated: win fraction and point differentials. Win fraction refers to the amount of wins out of total games a team played in a given time interval. Point differentials refer to the value of the team's earned points minus their opponent's points per game. For example, if the team lead by 6 points, they would have a +6 point differential for a specific game but if they were behind by 4 points, they would have a -4 point differential. 
+There were two main metrics with which skill could be calculated: win fraction and point differentials. Win fraction refers to the amount of wins out of total games a team played in a given time interval. Point differentials refer to the value of the team's earned points minus their opponent's points per game. For example, if the team lead by 6 points, they would have a +6 point differential for a specific game but if they were behind by 4 points, they would have a -4 point differential.
 
 $$
 skill = (1-\frac{var(win\ fraction)}{max(var(win fraction))})* mean(win fraction)
-$$
-$$
+$$ $$
 skill = (1-\frac{var(point\ differential)}{max(var(point\  differential))})* mean(point \ differential)
 $$
 
@@ -276,12 +246,10 @@ mod_df <- bbcombined %>%
 
 ```
 
-
 ```{r}
 mod_df %>%
   group_by(Team)
 ```
-
 
 ```{r}
 clean_mod_df <- mod_df |>
@@ -297,6 +265,7 @@ win_fraction <- clean_mod_df %>%
     win_fraction = total_wins / total_games  # Calculate fraction of wins
   )
 ```
+
 ```{r}
 var_win <- win_fraction |>
   group_by(Team) |>
@@ -327,20 +296,14 @@ h <- hi |>
     variance_point_diff = var(point_diff))
 ```
 
-
 ```{r}
 teampt_var <- h$variance_point_diff
 teampt_mean <- h$mean_point_diff
 ```
 
-
 ```{r}
 skill_pt <- (1-teampt_var/max(teampt_var))*(teampt_mean)
 ```
-
-
-
-
 
 ## Metropolis-Hastings Algorithm
 
@@ -348,13 +311,11 @@ We believe the probability of winning a game to be a function of skill. This is 
 
 Since teams have different skill levels. It is also clear that the probability a team wins a game varies as a function of this skill level.
 
-Consider the binary variable of a team winning a game. In this case, the probability a team wins a game, $\theta_t$ varies as a function of skill. 
+Consider the binary variable of a team winning a game. In this case, the probability a team wins a game, $\theta_t$ varies as a function of skill.
 
 $$
 Y_i \sim binary(\theta_t)
-$$
-We define this as below. 
-$$
+$$ We define this as below. $$
 \theta_t = \frac{1}{1+exp(\beta_0 + \beta_1 * x_i)}
 $$
 
@@ -367,46 +328,40 @@ $\beta_1$: a coefficient revealing how $x_i$ impacts probability a team wins
 $$
 p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) =
 \prod_{i=1}^n \ (\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i)})^{y_i} * (1-\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i))})^{1-y_i}
-$$
-We will define things on a log scale to avoid issues in numerical computation. 
+$$ We will define things on a log scale to avoid issues in numerical computation.
 
 $$
 log (p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1)) = {\sum_{i=1}^n \ [\ y_i*log(\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i)}) +\\
 (1-y_i)*log(1-\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i))})]}
 $$
 
+In order to build a distribution for $p(\beta_0, \beta_1 | \vec{y}, \vec{x})$, which is how we will land on the coefficients for our model, we need to set priors on the coefficients.
 
-In order to build a distribution for $p(\beta_0, \beta_1 | \vec{y}, \vec{x})$, which is how we will land on the coefficients for our model, we need to set priors on the coefficients. 
-
-Since, we don't know much about skill's effect on performance, we will use diffuse priors. In this case, normal distributions with variance 1000. 
+Since, we don't know much about skill's effect on performance, we will use diffuse priors. In this case, normal distributions with variance 1000.
 
 $$
 p(\beta_0, \beta_1) = dnorm(\beta_0, 0, sqrt(1000))* dnorm(\beta_1, 0, sqrt(1000))
-$$
-$$
+$$ $$
 log(p(\beta_0, \beta_1)) = log(dnorm(\beta_0, 0, sqrt(1000))) + log(dnorm(\beta_1, 0, sqrt(1000)))
 $$
 
-We will chose a symmetric target distribution for sampling. If we choose a target that is irreducible, aperiodic, and recurrent, Ergodic theorem promises that our Markov chain will yield a stationary target distribution which is in this case a posterior defined by $p(\beta_0, \beta_1 | \vec{y}, \vec{x})$. 
+We will chose a symmetric target distribution for sampling. If we choose a target that is irreducible, aperiodic, and recurrent, Ergodic theorem promises that our Markov chain will yield a stationary target distribution which is in this case a posterior defined by $p(\beta_0, \beta_1 | \vec{y}, \vec{x})$.
 
-To determine if we accept a proposed value, we will utilize the following acceptance rate. 
-
+To determine if we accept a proposed value, we will utilize the following acceptance rate.
 
 $$
 \frac{p(\beta_0^*, \beta_1^s |\ y_1, ...,y_n, \ x_1, ..., x_n)}{p(\beta_0^s, \beta_1^s |\ y_1, ...,y_n, \ x_1, ..., x_n)}
 $$
 
-
 $$
 \frac{p(\beta_0^{s+1}, \beta_1^s |\ y_1, ...,y_n, \ x_1, ..., x_n)}{p(\beta_0^{s+1}, \beta_1^* |\ y_1, ...,y_n, \ x_1, ..., x_n)}
-$$
-Since we do not have posteriors yet, we will weaponize the fact that this ratio is equivalent to the likelihood times posterior ratio. 
+$$ Since we do not have posteriors yet, we will weaponize the fact that this ratio is equivalent to the likelihood times posterior ratio.
 
 $$
 \frac{posterior(new \ state)}{posterior(old\ state)} = \frac{prior(new\ state) * likelihood(new\ state)}{prior(old\ state) * likelihood(old\ state)}
 $$
 
-Below we do Metropolis Hastings to determine the posterior representing coefficients in the model that considers point differentials instead of win-fractions. 
+Below we do Metropolis Hastings to determine the posterior representing coefficients in the model that considers point differentials instead of win-fractions.
 
 ```{r}
 set.seed(4)
@@ -478,14 +433,12 @@ for (s in 1:S) {
 }
 ```
 
-
 ```{r}
 library(coda) 
 
 parameterDF = data.frame(BETA0, BETA1)
 apply(parameterDF, 2, effectiveSize)
 ```
-
 
 ```{r}
 library(patchwork)
@@ -527,8 +480,6 @@ acf(BETA1)
 
 ```
 
-
-
 ```{r}
 theta_hat = (1)/(1+exp(beta0_estimate + beta1_estimate*x))
 
@@ -536,7 +487,6 @@ plot(y, theta_hat)
 ```
 
 When the skill metric that's based on win fraction instead of point differential is used in our model, we found that many other teams had higher probabilities of winning March Madness 2024 that the true winner UConn. The results appear better for the point differential based skill metric that's detailed below.
-
 
 ```{r}
 set.seed(4)
@@ -608,16 +558,12 @@ for (s in 1:S) {
 }
 ```
 
-
-
-
 ```{r}
 library(coda) 
 
 parameterDF = data.frame(BETA0, BETA1)
 apply(parameterDF, 2, effectiveSize)
 ```
-
 
 ```{r}
 library(patchwork)
@@ -653,21 +599,19 @@ acf(BETA0)
 
 acf(BETA1)
 ```
+
 ```{r}
 theta_hat = (1)/(1+exp(beta0_estimate + beta1_estimate*x))
 
 plot(y, theta_hat)
 ```
-We assessed the accuracy of our model by determining if the coefficients yielded a probability of a team's success that matched the data we observed, this model shows that UConn had the second highest probability of winning according to our skill-based model. In real life, UConn placed first as the winner of the 2024 March Madness tournament. 
+
+We assessed the accuracy of our model by determining if the coefficients yielded a probability of a team's success that matched the data we observed, this model shows that UConn had the second highest probability of winning according to our skill-based model. In real life, UConn placed first as the winner of the 2024 March Madness tournament.
 
 Our final model:
 
-To model whether a team won. 
-$$
-Y_i \sim binary(\theta_t)
+To model whether a team won. \$\$ Y_i \sim binary(\theta\_t)
 
-$$
-$$
-\hat{\theta_t} = \frac{1}{1+exp(37.258 -4.9934 * x_i)}
-$$
-where $x_i$ is the skill metric based on point differential. 
+\$\$\hat{\theta_t} = \frac{1}{1+exp(37.258 -4.9934 * x_i)}\$\$
+
+where $x_i$ is the skill metric based on point differential.
