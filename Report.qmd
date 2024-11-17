@@ -21,6 +21,12 @@ To determine how skill and chance play a role in team performance, and also pred
 
 3)  determine to what extent wins could be explained by team skill and how much was left to chance. determine who would win March Madness 2024 under our model.
 
+Data used and preprocessing: 
+In addition to using the provided data from the 2024 season for all teams in the March Madness Tournament, we gathered historical game log data for the 2022 and 2023 seasons as well. 
+
+How we developed our skil
+
+
 **Identify a Rational Metric of Team Skill**
 
 here
@@ -28,9 +34,9 @@ here
 ```{r}
 
 library(readr)
-teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
+#teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
 
-akron <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Akron(56).csv")
+#akron <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Akron(56).csv")
 ```
 
 
@@ -56,6 +62,11 @@ dataframes <- lapply(csv_files,function(file) {
     colnames(df)[colnames(df) == "X"] <- "W.L"
   }
   
+  # Extract the team name from the file name
+  team_name <- gsub("Basketball_dataset\\.xlsx - (.*)\\(.*\\.csv", "\\1", basename(file))
+  
+  # Add the team name as a new column
+  df$Team <- team_name
   
   df$source_file <- basename(file)  # Add the file name as a column
   return(df)
@@ -80,6 +91,8 @@ combined_2023 <- do.call(rbind, dataframes)
 head(combined_2023)
 dim(combined_2023)
 ```
+
+
 ```{r}
 # Define the folder path where your CSV files are stored
 folder_path <- "data21-22"
@@ -90,6 +103,17 @@ csv_files <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TR
 # Read all CSV files into a list of data frames
 dataframes <- lapply(csv_files,function(file) {
   df <- read.csv(file)  # Read the CSV file
+  
+  
+   # Extract the team name from the file name
+  team_name <- gsub("_(21-22_.*\\.csv)", "", basename(file))
+  team_name <- gsub("_", " ", team_name)  # Replace underscores with spaces for readability
+  
+  # Add the team name as a new column
+  df$Team <- team_name
+  
+
+  
   df$source_file <- basename(file)  # Add the file name as a column
   return(df)
 })
@@ -115,6 +139,7 @@ dim(combined_2021)
 
 ```
 
+
 ```{r}
 # Define the folder path where your CSV files are stored
 folder_path <- "data22-23"
@@ -125,6 +150,15 @@ csv_files <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TR
 # Read all CSV files into a list of data frames
 dataframes <- lapply(csv_files,function(file) {
   df <- read.csv(file)  # Read the CSV file
+  
+   # Extract the team name from the file name
+  team_name <- gsub("(\\s|_)?22-23_.*\\.csv", "", basename(file))
+  team_name <- gsub("_", " ", team_name)  # Replace underscores with spaces
+  
+  # Add the team name as a new column
+  df$Team <- team_name
+  
+
   df$source_file <- basename(file)  # Add the file name as a column
   return(df)
 })
@@ -146,15 +180,19 @@ combined_2022 <- do.call(rbind, dataframes)
 
 # View the combined data frame
 head(combined_2022)
-dim(combined_2022)
 ```
+
 Df names:
 2021-2022: combined_2021
 2022-2023: combined_2022
 2023-2024: combined_2023
+
+
+
+
 ```{r}
 # Define the columns to retain
-target_columns <- c("G", "Date", "Opponent", "W.L", "Tm", "Opp", "source_file")
+target_columns <- c("G", "Date", "Opponent", "W.L", "Tm", "Opp", "Team", "source_file")
 
 # Function to filter and align columns
 filter_columns <- function(df, target_columns) {
@@ -177,25 +215,20 @@ combined_2021 <- filter_columns(combined_2021, target_columns)
 
 # Combine the filtered data frames into one
 bbcombined <- rbind(combined_2023, combined_2022, combined_2021)
+bbcombined$Team <- gsub("Northwestern 22-23 36.csv", "Northwestern", bbcombined$Team)
+
 
 # View the final combined data frame
 head(bbcombined)
 dim(bbcombined)
+```
+
+```{r}
+unique(bbcombined$Team)
 
 ```
+
 Combined Name: bbcombined
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
