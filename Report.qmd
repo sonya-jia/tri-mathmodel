@@ -610,8 +610,8 @@ We assessed the accuracy of our model by determining if the coefficients yielded
 
 Our final model:
 
-To model whether a team won. \$\$ Y_i \sim binary(\theta\_t)
+To model whether a team won. $$ Y_i \sim binary(\theta_t)$$
 
-\$\$\hat{\theta_t} = \frac{1}{1+exp(37.258 -4.9934 * x_i)}\$\$
+$$\hat{\theta_t} = \frac{1}{1+exp(37.258 -4.9934 * x_i)}$$
 
 where $x_i$ is the skill metric based on point differential.
