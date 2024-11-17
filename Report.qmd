@@ -15,12 +15,212 @@ To determine how skill and chance play a role in team performance, and also pred
 
 **Identify a Rational Metric of Team Skill**
 
-$$
-skill = consistency \  * \ performance
+\$\$ skill = consistency   \*  performance
 
-$$
+\$\$
 
 here
 
+```{r}
 
+library(readr)
+akron <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Akron(56).csv")
+```
+
+```{r}
+
+
+teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
+
+alabama <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Alabama(16).csv")
+arizona <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+auburn <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Auburn(15).csv")
+baylor <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Baylor(9).csv")
+```
+
+Read in data
+
+```{r}
+
+## need to read in all the data, not finished
+
+boise <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Boise St (38).csv")
+byu <- read_csv("bbdata23-24/Basketball_dataset.xlsx - BYU(17).csv")
+clemson <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Clemson(22).csv")
+charleston <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Col. of Charleston(54).csv")
+colgate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Colgate(58).csv")
+colorado <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Colorado (39).csv")
+coloradastate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Colorado St (44).csv")
+
+
+creighton <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Creighton(10).csv")
+dayton <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Dayton(28).csv")
+drake <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Drake (40).csv")
+duke <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Duke(13).csv")
+duquesne <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Duquesne(46).csv")
+flaAtlantic <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Fla Atlantic (31).csv")
+florida <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Florida(25).csv")
+gonzaga <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Gonzaga(21).csv")
+grambling <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+grandcanyon <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+
+houston <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+howard <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+illinois <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+iowastate <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+jamesmadison <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+kansas <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+kentucky <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+longbeach <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+longwood <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Longwood (63).csv")
+florida <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+florida <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+florida <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+florida <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Arizona(6).csv")
+
+```
+
+```{r}
+# need to calculcate this for all 
+
+point_diff_akron <- akron$Tm - akron$Opp
+point_diff_alabama <- alabama$Tm - alabama$Opp
+
+
+POINTDIFF = NULL
+POINTDIFF = c(POINTDIFF, point_diff_akron)
+
+POINTDIFF = c(POINTDIFF, point_diff_alabama)
+```
+
+```{r}
+(1-var(point_diff_akron)/(var(point_diff_akron)+100))*(mean(point_diff_akron))
+```
+
+## Metropolis-Hastings Algorithm
+
+$x_i$ the skill metric for team i.
+
+$yi$ the performance of team i, win 1, lose 1
+
+$\beta_1$: a coefficient revealing how $x_i$ impacts probability a team wins
+
+$$
+p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) =
+\prod_{i=1}^n \ (\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i)})^{y_i} * (1-\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i))})^{1-y_i}
+$$
+
+
+
+$$
+p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) =
+ \ (\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)})^{\sum_{i=1}^n y_i} * (1-\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)})^{n-\sum_{i=1}^n y_i}
+$$
+
+$$
+p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) =
+ \ (\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)})^{n\bar{y}} * (1-\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)})^{n-n\bar{y}}
+$$
+
+
+$$
+log(p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1)) =  {n\bar{y}} * log(\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)}) +({n-n\bar{y}})* log((1-\frac{1}{1+exp(\beta_0 + \beta_1 * x_i)}))
+$$
+
+$$
+p(\beta_1\ |\ y_1, ...,y_n, \ x_1, ..., x_n,  \beta_0)  \propto \ p(y_1, ..., y_n, \ x_1, ..., x_n,  \beta_0, \beta_1)  = p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1)
+$$
+
+
+$$
+
+p(y_1, ..., y_n, \ x_1, ..., x_n,  \beta_0, \beta_1)  = p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) * p(x_1, ..., x_n,  \beta_0, \beta_1)
+
+$$
+
+
+$$
+ p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) * p(x_1, ..., x_n,  \beta_0, \beta_1) \propto p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1) * p( \beta_1)
+$$
+
+
+```{r}
+set.seed(4)
+
+logLikelihood = function(beta0, beta1) {
+  l = 1 + exp(beta0 + (beta1 * x))
+  n*y_bar*log(1/l)+(n-n*y_bar)*log(1-1/l)
+}
+
+logPrior = function(beta0, beta1) {
+  dnorm(beta0, 0, sqrt(1000), log = TRUE) + 
+    dnorm(beta1, 0, sqrt(1000), log = TRUE)
+}
+
+logPosterior = function(beta0, beta1) {
+  logLikelihood(beta0, beta1) + logPrior(beta0, beta1)
+}
+
+
+BETA0 = NULL
+BETA1 = NULL
+
+##do I want to utilize sigma
+SIGMA2 = NULL
+
+accept1 = 0
+accept2 = 0
+accept3 = 0
+
+y_bar = mean(y)
+n = length(y)
+
+S = 500
+
+beta0_s = 0.1
+beta1_s = 10
+sigma2_s = 1
+for (s in 1:S) {
+  
+  ## propose and update beta0
+  beta0_proposal = rnorm(1, mean = beta0_s, .5)
+   log.r = logPosterior(beta0_proposal, beta1_s, sigma2_s) - 
+     logPosterior(beta0_s, beta1_s, sigma2_s)
+   
+   if(log(runif(1)) < log.r)  {
+    beta0_s = beta0_proposal
+    accept1 = accept1 + 1 
+   }
+   
+   BETA0 = c(BETA0, beta0_s)
+   
+   ## propose and update beta1
+    beta1_proposal = rnorm(1, mean = beta1_s, .5)
+   log.r = logPosterior(beta0_s, beta1_proposal, sigma2_s) - 
+     logPosterior(beta0_s, beta1_s, sigma2_s)
+   
+   if(log(runif(1)) < log.r)  {
+    beta1_s = beta1_proposal
+    accept2 = accept2 + 1 
+   }
+   
+   BETA1 = c(BETA1, beta1_s)
+   
+   ## propose and update sigma2
+   ### note: sigma2 is positive only, we want to only propose positive values
+   sigma2_proposal = 1 / rgamma(1, shape = 1, sigma2_s)
+   log.r = logPosterior(beta0_s, beta1_s, sigma2_proposal) - 
+     logPosterior(beta0_s, beta1_s, sigma2_s) + 
+     dinvgamma(sigma2_proposal, 1, sigma2_s, log = TRUE) - 
+     dinvgamma(sigma2_s, 1, sigma2_proposal, log = TRUE) 
+   
+   if(log(runif(1)) < log.r)  {
+    sigma2_s = sigma2_proposal
+    accept3 = accept3 + 1 
+   }
+   
+   SIGMA2 = c(SIGMA2, sigma2_s)
+   
+}
+```
 
