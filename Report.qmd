@@ -21,10 +21,10 @@ To determine how skill and chance play a role in team performance, and also pred
 
 3)  determine to what extent wins could be explained by team skill and how much was left to chance. determine who would win March Madness 2024 under our model.
 
-Data used and preprocessing: 
-In addition to using the provided data from the 2024 season for all teams in the March Madness Tournament, we gathered historical game log data for the 2022 and 2023 seasons as well. 
+Data Used & Background Research: 
+In addition to using the provided data from the 2024 season for all teams in the March Madness Tournament, we gathered historical game log data for the 2022 and 2023 seasons as well (https://www.sports-reference.com/cbb/seasons/men/2022-school-stats.html). Our system for quanitifying skill was inspired by this article: https://www.siam.org/publications/siam-news/articles/feeling-lucky-the-relative-roles-of-skill-and-chance-in-sports/. 
 
-How we developed our skill 
+
 
 
 **Identify a Rational Metric of Team Skill**
