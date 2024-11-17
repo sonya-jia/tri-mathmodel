@@ -5,6 +5,14 @@ format: pdf
 editor: source
 ---
 
+##Libraries
+
+```{r}
+library(dplyr)
+
+```
+
+
 To determine how skill and chance play a role in team performance, and also predict who would win 2024 March Madness, we decided to take the following approach:
 
 1)  identify a rational metric of team skill.
@@ -171,6 +179,19 @@ $$
 $$
 skill = (1-\frac{var(point\ differential)}{max(var(point\  differential))})* mean(point \ differential)
 $$
+
+
+
+```{r}
+combined_2023 <- combined_2023 |>
+  select(Date, X, Tm, Opp, source_file )
+```
+
+```{r}
+combined_2023 |>
+  group_by(source_file, Date) |>
+  count(X)
+```
 
 
 
