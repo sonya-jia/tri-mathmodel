@@ -24,7 +24,7 @@ To determine how skill and chance play a role in team performance, and also pred
 Data used and preprocessing: 
 In addition to using the provided data from the 2024 season for all teams in the March Madness Tournament, we gathered historical game log data for the 2022 and 2023 seasons as well. 
 
-How we developed our skil
+How we developed our skill 
 
 
 **Identify a Rational Metric of Team Skill**
@@ -34,7 +34,7 @@ here
 ```{r}
 
 library(readr)
-#teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
+teamsf <- read_csv("Basketball_dataset.xlsx - Teams.csv")
 
 #akron <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Akron(56).csv")
 ```
