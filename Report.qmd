@@ -34,7 +34,7 @@ here
 ```{r}
 
 library(readr)
-#teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
+teams <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Teams.csv")
 
 #akron <- read_csv("bbdata23-24/Basketball_dataset.xlsx - Akron(56).csv")
 ```
@@ -272,9 +272,21 @@ mod_df <- bbcombined %>%
 
 ```
 
+
 ```{r}
-win_fraction <- mod_df %>%
-  group_by(source_file) %>%
+mod_df %>%
+  group_by(Team)
+```
+
+
+```{r}
+clean_mod_df <- mod_df |>
+  filter(!is.na(Tm))
+```
+
+```{r}
+win_fraction <- clean_mod_df %>%
+  group_by(Team, source_file) %>%
   summarise(
     total_games = n(),  # Count total games
     total_wins = sum(W.L == "W"),  # Count wins
@@ -282,29 +294,46 @@ win_fraction <- mod_df %>%
   )
 ```
 ```{r}
-win_fraction
+var_win <- win_fraction |>
+  group_by(Team) |>
+  summarize(
+    mean = mean(win_fraction),
+    variance = var(win_fraction))
+
+team_var <- var_win$variance
+team_mean <- var_win$mean
 ```
 
 ```{r}
-point_differential <- mod_df %>%
-  mutate(points_difference = Tm - Opp)
+skill <- (1-team_var/max(team_var))*(team_mean)
 ```
 
+```{r}
+hi <-
+clean_mod_df |>
+  mutate(point_diff = Tm - Opp)
+
+hi <- hi |>
+  filter(!is.na(point_diff))
+
+
+h <- hi |>
+  group_by(Team) |>
+  summarise(mean_point_diff = mean(point_diff),
+    variance_point_diff = var(point_diff))
+```
 
 
 ```{r}
-mod_df |>
-  group_by(source_file, W.L) |>
-  count(period)
+teampt_var <- h$variance_point_diff
+teampt_mean <- h$mean_point_diff
 ```
-
 
 
 ```{r}
-bbcombined |>
-  group_by(source_file) |>
-  count(W.L)
+skill_pt <- (1-teampt_var/max(teampt_var))*(teampt_mean)
 ```
+
 
 
 
@@ -405,6 +434,7 @@ BETA1 = NULL
 accept1 = 0
 accept2 = 0
 
+x = skill
 S = 10000
 
 beta0_s = 0
