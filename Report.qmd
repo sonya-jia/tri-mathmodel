@@ -5,26 +5,37 @@ format: pdf
 editor: source
 ---
 
-## Libraries
 
-```{r}
+```{r echo=FALSE, warning = FALSE, include=FALSE}
 library(dplyr)
 library(knitr)
 ```
 
+# Introduction
+
 To determine how skill and chance play a role in team performance, and also predict who would win 2024 March Madness, we decided to take the following approach:
 
-1)  identify a rational metric of team skill.
+1)  Identify a rational metric of team skill.
 
-2)  model team wins as a function of skill under informative priors.
+2)  Model team wins as a function of skill, using Bayesian methods.
 
-3)  determine to what extent wins could be explained by team skill and how much was left to chance. determine who would win March Madness 2024 under our model.
+3)  Measure how much wins can be explained by skill versus chance, and predict the likely tournament outcome.
 
-Data Used & Background Research: In addition to using the provided data from the 2024 season for all teams in the March Madness Tournament, we gathered historical game log data for the 2022 and 2023 seasons as well (https://www.sports-reference.com/cbb/seasons/men/2022-school-stats.html). Our system for quanitifying skill was inspired by this article: https://www.siam.org/publications/siam-news/articles/feeling-lucky-the-relative-roles-of-skill-and-chance-in-sports/.
+::: {.callout-note icon="lightbulb"}
+When teams win basketball games, is it because they're truly the best—or did luck play a role? Here, we try to measure skill in a fair way, use math to see how much skill predicts success, and then estimate how much "luck" is left over. 
+:::
+
+# Data Used & Background Research
+In addition to using the provided data from the 2024 season for all teams in the March Madness Tournament, we gathered historical game  data for the 2022 and 2023 seasons as well (https://www.sports-reference.com/cbb/seasons/men/2022-school-stats.html). Our system for quanitifying skill was inspired by this article: https://www.siam.org/publications/siam-news/articles/feeling-lucky-the-relative-roles-of-skill-and-chance-in-sports/.
+
+::: {.callout-note icon="lightbulb"}
+Multiple years can help establish team skill over time, if such quantification is possible. 
+:::
+
 
 **Identify a Rational Metric of Team Skill**
 
-```{r}
+```{r echo = FALSE, warning = FALSE, include= FALSE}
 
 library(readr)
 
@@ -35,7 +46,7 @@ Read in data
 
 ## combining data
 
-```{r}
+```{r echo = FALSE, warning = FALSE, include = FALSE}
 # Define the folder path where your CSV files are stored
 folder_path <- "bbdata23-24"
 
@@ -81,7 +92,7 @@ head(combined_2023)
 dim(combined_2023)
 ```
 
-```{r}
+```{r echo = FALSE, warning = FALSE, include = FALSE}
 # Define the folder path where your CSV files are stored
 folder_path <- "data21-22"
 
@@ -127,7 +138,7 @@ dim(combined_2021)
 
 ```
 
-```{r}
+```{r echo = FALSE, warning = FALSE, include = FALSE}
 # Define the folder path where your CSV files are stored
 folder_path <- "data22-23"
 
@@ -171,7 +182,7 @@ head(combined_2022)
 
 Df names: 2021-2022: combined_2021 2022-2023: combined_2022 2023-2024: combined_2023
 
-```{r}
+```{r echo = FALSE, warning = FALSE, include = FALSE}
 # Define the columns to retain
 target_columns <- c("G", "Date", "Opponent", "W.L", "Tm", "Opp", "Team", "source_file")
 
@@ -204,16 +215,20 @@ head(bbcombined)
 dim(bbcombined)
 ```
 
-```{r}
+```{r echo = FALSE, warning = FALSE, include = FALSE}
 unique(bbcombined$Team)
 
 ```
 
-Combined Name: bbcombined
+
+
+
+# Building a Skill Metric
 
 ## skill task
 
-To develop the skill metric, it was of utmost importance to determine whether a team performed well but also performed consistently. A good performance, could in theory appear to be based on skill, but it would be wrong to give skill points to a team if that appearingly skilled performance came out of a performance that was a high score based on luck. For this reason, we decided to utilize a skill metric that would give weight to consistently and performance. Consistency in this case can be considered to be a function of variance. $$
+To develop the skill metric, it was of utmost importance to determine whether a team performed well but also performed consistently. A good performance, could in theory appear to be based on skill, but it would be wrong to give skill points to a team if that appearingly skilled performance came out of a performance that was a high score based on luck. For this reason, we decided to utilize a skill metric that would give weight to consistently and performance. Consistency in this case can be considered to be a function of variance. 
+$$
 skill = consistency \ * performance
 $$
 
@@ -229,7 +244,12 @@ $$ $$
 skill = (1-\frac{var(point\ differential)}{max(var(point\  differential))})* mean(point \ differential)
 $$
 
-```{r}
+
+::: {.callout-note icon="lightbulb"}
+Why consistency? A skilled team won't just win; they'll win often.
+:::
+
+```{r echo = FALSE, warning=FALSE, include = FALSE}
 library(dplyr)
 
 # Convert the date column to Date format and extract the month abbreviation
@@ -246,17 +266,17 @@ mod_df <- bbcombined %>%
 
 ```
 
-```{r}
+```{r echo = FALSE, warning=FALSE, include =FALSE}
 mod_df %>%
   group_by(Team)
 ```
 
-```{r}
+```{r echo = FALSE}
 clean_mod_df <- mod_df |>
   filter(!is.na(Tm))
 ```
 
-```{r}
+```{r echo = FALSE}
 win_fraction <- clean_mod_df %>%
   group_by(Team, source_file) %>%
   summarise(
@@ -266,7 +286,7 @@ win_fraction <- clean_mod_df %>%
   )
 ```
 
-```{r}
+```{r echo = FALSE}
 var_win <- win_fraction |>
   group_by(Team) |>
   summarize(
@@ -277,11 +297,11 @@ team_var <- var_win$variance
 team_mean <- var_win$mean
 ```
 
-```{r}
+```{r echo=FALSE}
 skill <- (1-team_var/max(team_var))*(team_mean)
 ```
 
-```{r}
+```{r echo = FALSE}
 hi <-
 clean_mod_df |>
   mutate(point_diff = Tm - Opp)
@@ -296,16 +316,16 @@ h <- hi |>
     variance_point_diff = var(point_diff))
 ```
 
-```{r}
+```{r echo = FALSE}
 teampt_var <- h$variance_point_diff
 teampt_mean <- h$mean_point_diff
 ```
 
-```{r}
+```{r echo = FALSE}
 skill_pt <- (1-teampt_var/max(teampt_var))*(teampt_mean)
 ```
 
-## Metropolis-Hastings Algorithm
+# Metropolis-Hastings Algorithm
 
 We believe the probability of winning a game to be a function of skill. This is how we will predict who wins 2024. The other question we will answer is how much is skill explanatory of wins. We must start by building a model that quantifies skill in game wins and seeing what variability can not be explained by skill differential. For those other factors not accounted for are chance-based factors.
 
@@ -319,9 +339,9 @@ $$ We define this as below. $$
 \theta_t = \frac{1}{1+exp(\beta_0 + \beta_1 * x_i)}
 $$
 
-$x_i$ the skill metric for team i.
+$x_i$ is the skill metric for team i.
 
-$yi$ the performance of team i, win 1, lose 1
+$y_i$ is the performance of team i, win 1, lose 1
 
 $\beta_1$: a coefficient revealing how $x_i$ impacts probability a team wins
 
@@ -332,7 +352,10 @@ $$ We will define things on a log scale to avoid issues in numerical computation
 
 $$
 log (p(y_1 ...y_n\ |\ x_1, ..., x_n,  \beta_0, \beta_1)) = {\sum_{i=1}^n \ [\ y_i*log(\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i)}) +\\
-(1-y_i)*log(1-\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i))})]}
+(1-y_i)]}
+$$
+$$
+*\ log(1-\frac{1}{(1+exp(\beta_0 + \beta_1 * x_i))})
 $$
 
 In order to build a distribution for $p(\beta_0, \beta_1 | \vec{y}, \vec{x})$, which is how we will land on the coefficients for our model, we need to set priors on the coefficients.
@@ -363,6 +386,10 @@ $$
 
 Below we do Metropolis Hastings to determine the posterior representing coefficients in the model that considers point differentials instead of win-fractions.
 
+
+::: {.callout-note icon="lightbulb"}
+What's Metropolis-Hastings? Imagine we pick random shirts until we find the shirt you wear the most. It's a process with mathematical guarantees that we use here. 
+:::
 ```{r}
 set.seed(4)
 
@@ -433,14 +460,14 @@ for (s in 1:S) {
 }
 ```
 
-```{r}
+```{r echo = FALSE}
 library(coda) 
 
 parameterDF = data.frame(BETA0, BETA1)
 apply(parameterDF, 2, effectiveSize)
 ```
 
-```{r}
+```{r echo = FALSE, warning = FALSE}
 library(patchwork)
 library(ggplot2)
 n = nrow(parameterDF)
@@ -461,7 +488,7 @@ p1 = parameterDF %>%
 p0 + p1
 ```
 
-```{r}
+```{r echo = FALSE, warning  =FALSE}
 beta0_estimate <- mean(BETA0)
 
 beta0_estimate
@@ -472,7 +499,7 @@ y_hat = exp(logLikelihood(BETA0, BETA1))
 
 ```
 
-```{r}
+```{r echo = FALSE}
 acf(BETA0)
 
 acf(BETA1)
@@ -480,7 +507,7 @@ acf(BETA1)
 
 ```
 
-```{r}
+```{r echo= FALSE, warning = FALSE}
 theta_hat = (1)/(1+exp(beta0_estimate + beta1_estimate*x))
 
 plot(y, theta_hat)
@@ -488,7 +515,7 @@ plot(y, theta_hat)
 
 When the skill metric that's based on win fraction instead of point differential is used in our model, we found that many other teams had higher probabilities of winning March Madness 2024 that the true winner UConn. The results appear better for the point differential based skill metric that's detailed below.
 
-```{r}
+```{r warning=FALSE}
 set.seed(4)
 
 logLikelihood = function(beta0, beta1) {
@@ -558,14 +585,14 @@ for (s in 1:S) {
 }
 ```
 
-```{r}
+```{r echo = FALSE, warning=FALSE}
 library(coda) 
 
 parameterDF = data.frame(BETA0, BETA1)
 apply(parameterDF, 2, effectiveSize)
 ```
 
-```{r}
+```{r echo = FALSE, warning=FALSE}
 library(patchwork)
 library(ggplot2)
 n = nrow(parameterDF)
@@ -586,7 +613,7 @@ p1 = parameterDF %>%
 p0 + p1
 ```
 
-```{r}
+```{r echo = FALSE, warning = FALSE}
 beta0_estimate <- BETA0[length(BETA0)]
 
 beta0_estimate
@@ -594,24 +621,34 @@ beta1_estimate <- BETA1[length(BETA1)]
 beta1_estimate
 ```
 
-```{r}
+```{r echo = FALSE, warning =FALSE}
 acf(BETA0)
 
 acf(BETA1)
 ```
 
-```{r}
+```{r echo = FALSE, warning = FALSE}
 theta_hat = (1)/(1+exp(beta0_estimate + beta1_estimate*x))
 
 plot(y, theta_hat)
 ```
 
+# Model Results
+
+::: {.callout-note icon="lightbulb"}
+We fit our model twice:
+Once with win-fraction-based skill metric. Once withthe point-differential based metric. We found that skill measured by point differential better matched who actually won March Madness 2024 (UConn was out model's #2 pick; they won).
+:::
 We assessed the accuracy of our model by determining if the coefficients yielded a probability of a team's success that matched the data we observed, this model shows that UConn had the second highest probability of winning according to our skill-based model. In real life, UConn placed first as the winner of the 2024 March Madness tournament.
 
-Our final model:
+# Our final model
 
 To model whether a team won. $$ Y_i \sim binary(\theta_t)$$
 
 $$\hat{\theta_t} = \frac{1}{1+exp(37.258 -4.9934 * x_i)}$$
 
 where $x_i$ is the skill metric based on point differential.
+
+::: {.callout-note icon="lightbulb"}
+Here, we've effectively quantified what magnitude our skill metric relates to team wins. 
+:::
